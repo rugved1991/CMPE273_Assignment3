@@ -15,12 +15,6 @@ import (
     "log"
 )
 
-//func hello(rw http.ResponseWriter, req *http.Request, p httprouter.Params) {
-//    fmt.Fprintf(rw, "Hello, %s!\n", p.ByName("name"))
-//}
-
-// MongoLab Auth : mongodb://tjs:password@ds039684.mongolab.com:39684/mongo
-//UBER SDK
 
 type PriceEstimates struct {
     StartLatitude  float64
@@ -30,7 +24,7 @@ type PriceEstimates struct {
     Prices         []PriceEstimate `json:"prices"`
 }
 
-// Uber price estimate
+
 type PriceEstimate struct {
     ProductId       string  `json:"product_id"`
     CurrencyCode    string  `json:"currency_code"`
@@ -43,7 +37,7 @@ type PriceEstimate struct {
     Distance        float64 `json:"distance"`
 }
 
-// Internal method that implements the Getter interface
+
 func (pe *PriceEstimates) get(c *Client) error {
     priceEstimateParams := map[string]string{
         "start_latitude":  strconv.FormatFloat(pe.StartLatitude, 'f', 2, 32),
@@ -60,16 +54,16 @@ func (pe *PriceEstimates) get(c *Client) error {
 }
 
 const (
-    // Uber API endpoint
+    
     APIUrl string = "https://sandbox-api.uber.com/v1/%s%s"
 )
 
-// Getter defines the behavior for all HTTP Get requests
+
 type Getter interface {
     get(c *Client) error
 }
 
-// OAuth parameters
+
 type RequestOptions struct {
     ServerToken    string
     ClientId       string
@@ -81,18 +75,17 @@ type RequestOptions struct {
     BaseUrl        string
 }
 
-// Client contains the required OAuth tokens and urls and manages
-// the connection to the API. All requests are made via this type
+
 type Client struct {
     Options *RequestOptions
 }
 
-// Create returns a new API client
+
 func Create(options *RequestOptions) *Client {
     return &Client{options}
 }
 
-// Get formulates an HTTP GET request based on the Uber endpoint type
+
 func (c *Client) Get(getter Getter) error {
     if e := getter.get(c); e != nil {
         return e
@@ -101,7 +94,7 @@ func (c *Client) Get(getter Getter) error {
     return nil
 }
 
-// Send HTTP request to Uber API
+
 func (c *Client) getRequest(endpoint string, params map[string]string) []byte {
     urlParams := "?"
     params["server_token"] = c.Options.ServerToken
@@ -116,7 +109,7 @@ func (c *Client) getRequest(endpoint string, params map[string]string) []byte {
 
     res, err := http.Get(url)
     if err != nil {
-        //log.Fatal(err)
+        
     }
 
     data, err := ioutil.ReadAll(res.Body)
@@ -124,16 +117,16 @@ func (c *Client) getRequest(endpoint string, params map[string]string) []byte {
 
     return data
 }
-//
 
-// List of Uber products with given lat/long coords
+
+
 type Products struct {
     Latitude  float64
     Longitude float64
     Products  []Product `json:"products"`
 }
 
-// Uber product
+
 type Product struct {
     ProductId   string `json:"product_id"`
     Description string `json:"description"`
@@ -142,7 +135,7 @@ type Product struct {
     Image       string `json:"image"`
 }
 
-// Internal method that implements the getter interface
+
 func (pl *Products) get(c *Client) error {
     productParams := map[string]string{
         "latitude":  strconv.FormatFloat(pl.Latitude, 'f', 2, 32),
@@ -267,15 +260,15 @@ func createlocation(rw http.ResponseWriter, req *http.Request, p httprouter.Para
     }
 
 
-    //lstring := strings.Split(t.Loc," ");
+    
     st:=strings.Join(strings.Split(t.Address," "),"+");
     fmt.Println(st);
     constr := []string {strings.Join(strings.Split(t.Address," "),"+"),strings.Join(strings.Split(t.City," "),"+"),t.State}
     lstringplus := strings.Join(constr,"+")
     locstr := []string{"http://maps.google.com/maps/api/geocode/json?address=",lstringplus}
-    //fmt.Println(strings.Join(locstr,""));
+    
     resp, err := http.Get(strings.Join(locstr,""))
-    //fmt.Println(resp);
+    
     
     body, err := ioutil.ReadAll(resp.Body)
     if err != nil {
@@ -284,21 +277,16 @@ func createlocation(rw http.ResponseWriter, req *http.Request, p httprouter.Para
      var data Responz
     err = json.Unmarshal(body, &data)
     fmt.Println(data.Status)
-    // n := bytes.IndexByte(body, 0)
-    // stz := string(body[:n])
-    // fmt.Println(stz);
-
- //    s := []string{"Hello, ",t.Name}
- //    g := resObj{strings.Join(s,"")}
+    
     t.Coordinates.Lat=data.Results[0].Geometry.Location.Lat;
     t.Coordinates.Lng=data.Results[0].Geometry.Location.Lng;
 
 
-//Mongo Persistence
+
 
  conn, err := mgo.Dial("mongodb://rugved:rugved@ds045454.mongolab.com:45454/rugved")
 
-    // Check if connection error, is mongo running?
+    
     if err != nil {
         panic(err)
     }
@@ -308,12 +296,12 @@ conn.SetMode(mgo.Monotonic,true);
 c:=conn.DB("rugved").C("assignment2");
 err = c.Insert(t);
 
-//Response
+
     js,err := json.Marshal(t)
     if err != nil{
-	   fmt.Println("Error")
-	   return
-	}
+       fmt.Println("Error")
+       return
+    }
     rw.Header().Set("Content-Type","application/json")
     rw.Write(js)
 }
@@ -326,7 +314,7 @@ if err1 != nil {
     }
  conn, err := mgo.Dial("mongodb://rugved:rugved@ds045454.mongolab.com:45454/rugved")
 
-    // Check if connection error, is mongo running?
+    
     if err != nil {
         panic(err)
     }
@@ -340,9 +328,7 @@ if err != nil {
                 fmt.Println(err)
         }
 
-        //fmt.Println("Name:", result.Name)
-
-        //Response
+        
         js,err := json.Marshal(result)
     if err != nil{
        fmt.Println("Error")
@@ -360,15 +346,15 @@ type modReqObj struct{
 }
 
 func updateloc(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
-    //fmt.Println("sdf");
+    
  id ,err1:= strconv.Atoi(p.ByName("locid"))
- //fmt.Println(id);
+ 
  if err1 != nil {
          panic(err1)
      }
   conn, err := mgo.Dial("mongodb://rugved:rugved@ds045454.mongolab.com:45454/rugved")
 
-//     // Check if connection error, is mongo running?
+
      if err != nil {
          panic(err)
      }
@@ -397,7 +383,7 @@ conn.SetMode(mgo.Monotonic,true);
 
 func deleteloc(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
      id ,err1:= strconv.Atoi(p.ByName("locid"))
- //fmt.Println(id);
+ 
  if err1 != nil {
          panic(err1)
      }
@@ -405,7 +391,7 @@ func deleteloc(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
   conn.SetMode(mgo.Monotonic,true);
 c:=conn.DB("rugved").C("assignment2");
 
-//     // Check if connection error, is mongo running?
+
      if err != nil {
          panic(err)
      }
@@ -432,18 +418,18 @@ func plantrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
         log.Println(uUD.StartingFromLocationID);
 
 
-///UBERRRRRR !!!!
+
     var options RequestOptions;
-    options.ServerToken= "RJk07n4it3Npa2XjsquU0fWu4AChpUxp-U-Q9E9M";
-    options.ClientId= "sMa0zFFjsq4ugOe5zs2tJpRkdoWW9Lv3";
-    options.ClientSecret= "JWfx6JHvsPDygXLzPn6z1ipELETQSgiHFsaiBUlh";
+    options.ServerToken= "";
+    options.ClientId= "";
+    options.ClientSecret= "";
     options.AppName= "CMPE273TransitApp";
     options.BaseUrl= "https://sandbox-api.uber.com/v1/";
     
 
     client :=Create(&options); 
 
-//Quering for the locations: start and the rest
+
         sid ,err1:= strconv.Atoi(uUD.StartingFromLocationID)
  fmt.Println(uUD.StartingFromLocationID);
  fmt.Println(sid);
@@ -453,7 +439,7 @@ func plantrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
 
     conn, err := mgo.Dial("mongodb://rugved:rugved@ds045454.mongolab.com:45454/rugved");
 
-    // Check if connection error, is mongo running?
+    
     if err != nil {
         panic(err)
     }
@@ -467,8 +453,7 @@ func plantrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
                 fmt.Println(err)
         }
 
-    // distance := []int{};
-    // price :=[]float64{};
+    
     index:=0;
     totalPrice := 0;
     totalDistance :=0.0;
@@ -479,7 +464,7 @@ func plantrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
     for _,ids := range uUD.LocationIds{
     
         lid,err1:= strconv.Atoi(ids)
-            //fmt.Println(id);
+            
         if err1 != nil {
             panic(err1)
         }
@@ -506,14 +491,10 @@ func plantrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
         m[pe.Prices[0].Distance]=ids;
         index=index+1;
     }
-    //fmt.Println(bestroute[1]);
+    
     sort.Float64s(bestroute);
-    //fmt.Println(bestroute[1]);
+    
 
-
-    // fmt.Println(totalDistance);
-    // fmt.Println(totalPrice);
-    // fmt.Println(totalDuration);
 
     var tripres TripResponse;
 
@@ -533,12 +514,12 @@ func plantrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
      }
      fmt.Println(tripres.BestRouteLocationIds[1]);
 
-     //Persisting
+     
 
     c1:=conn.DB("rugved").C("trips");
     err = c1.Insert(tripres);
 
-     //Response
+    
         js,err := json.Marshal(tripres)
     if err != nil{
        fmt.Println("Error")
@@ -554,7 +535,7 @@ func gettrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
 
     conn, err := mgo.Dial("mongodb://rugved:rugved@ds045454.mongolab.com:45454/rugved")
 
-    // Check if connection error, is mongo running?
+    
     if err != nil {
         panic(err)
     }
@@ -568,7 +549,7 @@ func gettrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
         fmt.Println(err)
     }
 
-    //Response
+    
     js,err := json.Marshal(result)
     if err != nil{
        fmt.Println("Error")
@@ -587,10 +568,10 @@ var ogtID int;
 func requesttrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
     
 
-    //Mongo Query   p.ByName("tripid")}
+    
     kid ,err1:= strconv.Atoi(p.ByName("tripid"))
     var siD int;
-    //fmt.Println(id);
+    
     if err1 != nil {
          panic(err1)
      }
@@ -599,7 +580,7 @@ func requesttrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params)
     result2:=reqObj{}
     conn, err := mgo.Dial("mongodb://rugved:rugved@ds045454.mongolab.com:45454/rugved")
 
-    // Check if connection error, is mongo running?
+    
     if err != nil {
         panic(err)
     }
@@ -621,7 +602,7 @@ func requesttrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params)
         iD, err = strconv.Atoi(result.StartingFromLocationID)
         siD=iD;
         if err != nil {
-        // handle error
+        
             fmt.Println(err)
         }
     }else
@@ -629,7 +610,7 @@ func requesttrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params)
         iD, err = strconv.Atoi(result.BestRouteLocationIds[currentPos-1])
         siD=iD;
         if err != nil {
-        // handle error
+        
             fmt.Println(err)
         }
     }
@@ -640,7 +621,7 @@ func requesttrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params)
         }
     iD, err = strconv.Atoi(result.BestRouteLocationIds[currentPos])
     if err != nil {
-        // handle error
+        
         fmt.Println(err)
     }
     err = c1.Find(bson.M{"id":iD}).One(&result2)
@@ -661,15 +642,12 @@ func requesttrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params)
     ogt.TotalUberDuration=result.TotalUberDuration;
     ogt.Status="requesting";
     
-
     
 
-    //UBER REQ
-
     var options RequestOptions;
-    options.ServerToken= "RJk07n4it3Npa2XjsquU0fWu4AChpUxp-U-Q9E9M";
-    options.ClientId= "sMa0zFFjsq4ugOe5zs2tJpRkdoWW9Lv3";
-    options.ClientSecret= "JWfx6JHvsPDygXLzPn6z1ipELETQSgiHFsaiBUlh";
+    options.ServerToken= "";
+    options.ClientId= "";
+    options.ClientSecret= "";
     options.AppName= "CMPE273TransitApp";
     options.BaseUrl= "https://sandbox-api.uber.com/v1/";
     client :=Create(&options);
@@ -699,7 +677,7 @@ func requesttrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params)
     rr.ProductID=prodid;
     buf, _ := json.Marshal(rr)
     body := bytes.NewBuffer(buf)
-    url := fmt.Sprintf(APIUrl, "requests?","access_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZXMiOlsicmVxdWVzdCJdLCJzdWIiOiIxOTljMzBmYy02ZDJiLTQxYTUtYjRkNC03YTM3YzI0NDE3NzMiLCJpc3MiOiJ1YmVyLXVzMSIsImp0aSI6IjQ0NmYzMmQ5LTNjOTYtNDFhOC04YjIzLWQ5OWQ4ZTVlOTQzZCIsImV4cCI6MTQ1MDc2NDc4MCwiaWF0IjoxNDQ4MTcyNzc5LCJ1YWN0IjoiUXJ1MkVzb3Z5Nlc1aFVqVmIzaDRBTUVzM2c1SXIzIiwibmJmIjoxNDQ4MTcyNjg5LCJhdWQiOiJzTWEwekZGanNxNHVnT2U1enMydEpwUmtkb1dXOUx2MyJ9.cW3-Bv86HiVH8Hwow8KoqhozANbq1dAk2c0qQoQUDP47O7O-fPNOeAe9T8vX8yTC52I0xA1q-H2aHC0SfoGQjtemPFl4psj1R73uYuxEqfvTx8NmbeeK6ZDkDQF6DrJdA3jtPdew1F9K7O4Khdw3JfGD9K5b_RKO6vZiCuLHcaYkqg5AeC7eOhbdZ5K7c16-FKKfAcp5Btk09hLu0n7lQttR_O-etLDYmp3zfLJorqNBXP_sVTqTsOxr2uhiAmNsqL-x_UzOLJEWga5qxFDtRUA847HNSi6FQ-3F0CwR8JoNfWA_aHQhbB2VksCbbMeNAXgWujS9yDqhE_S8rYlK0A")
+    url := fmt.Sprintf(APIUrl, "requests?","access_token=")
     res, err := http.Post(url,"application/json",body)
     if err != nil {
         fmt.Println(err)
@@ -724,7 +702,7 @@ func requesttrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params)
 
 func main() {
     mux := httprouter.New()
-    //mux.GET("/hello/:name", hello)
+    
 
     id=0;
     tripId=0;
