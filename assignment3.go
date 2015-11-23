@@ -16,34 +16,29 @@ import (
 )
 
 
-type PriceEstimates struct {
-    StartLatitude  float64
-    StartLongitude float64
-    EndLatitude    float64
-    EndLongitude   float64
-    Prices         []PriceEstimate `json:"prices"`
+type Products struct {
+    Lat  float64
+    Lng float64
+    Products  []Product `json:"products"`
 }
 
 
-type PriceEstimate struct {
-    ProductId       string  `json:"product_id"`
-    CurrencyCode    string  `json:"currency_code"`
-    DisplayName     string  `json:"display_name"`
-    Estimate        string  `json:"estimate"`
-    LowEstimate     int     `json:"low_estimate"`
-    HighEstimate    int     `json:"high_estimate"`
-    SurgeMultiplier float64 `json:"surge_multiplier"`
-    Duration        int     `json:"duration"`
-    Distance        float64 `json:"distance"`
+type Product struct {
+    Prod_id   string `json:"product_id"`
+    Description string `json:"description"`
+    Disp_name string `json:"display_name"`
+    Capacity    int    `json:"capacity"`
+    Image       string `json:"image"`
 }
 
 
-func (pe *PriceEstimates) get(c *Client) error {
+
+func (pe *PriceEsts) get(c *Client) error {
     priceEstimateParams := map[string]string{
-        "start_latitude":  strconv.FormatFloat(pe.StartLatitude, 'f', 2, 32),
-        "start_longitude": strconv.FormatFloat(pe.StartLongitude, 'f', 2, 32),
-        "end_latitude":    strconv.FormatFloat(pe.EndLatitude, 'f', 2, 32),
-        "end_longitude":   strconv.FormatFloat(pe.EndLongitude, 'f', 2, 32),
+        "start_latitude":  strconv.FormatFloat(pe.StartLat, 'f', 2, 32),
+        "start_longitude": strconv.FormatFloat(pe.StartLong, 'f', 2, 32),
+        "end_latitude":    strconv.FormatFloat(pe.EndLat, 'f', 2, 32),
+        "end_longitude":   strconv.FormatFloat(pe.EndLong, 'f', 2, 32),
     }
 
     data := c.getRequest("estimates/price", priceEstimateParams)
@@ -75,6 +70,26 @@ type RequestOptions struct {
     BaseUrl        string
 }
 
+type PriceEsts struct {
+    StartLat  float64
+    StartLong float64
+    EndLat    float64
+    EndLong   float64
+    Prices         []PriceEst `json:"prices"`
+}
+
+
+type PriceEst struct {
+    Prod_id       string  `json:"product_id"`
+    Currency_code    string  `json:"currency_code"`
+    Disp_name     string  `json:"display_name"`
+    Estimate        string  `json:"estimate"`
+    LowEstim     int     `json:"low_estimate"`
+    HighEstim    int     `json:"high_estimate"`
+    SurgeMultiplier float64 `json:"surge_multiplier"`
+    Duration        int     `json:"duration"`
+    Distance        float64 `json:"distance"`
+}
 
 type Client struct {
     Options *RequestOptions
@@ -120,26 +135,12 @@ func (c *Client) getRequest(endpoint string, params map[string]string) []byte {
 
 
 
-type Products struct {
-    Latitude  float64
-    Longitude float64
-    Products  []Product `json:"products"`
-}
-
-
-type Product struct {
-    ProductId   string `json:"product_id"`
-    Description string `json:"description"`
-    DisplayName string `json:"display_name"`
-    Capacity    int    `json:"capacity"`
-    Image       string `json:"image"`
-}
 
 
 func (pl *Products) get(c *Client) error {
     productParams := map[string]string{
-        "latitude":  strconv.FormatFloat(pl.Latitude, 'f', 2, 32),
-        "longitude": strconv.FormatFloat(pl.Longitude, 'f', 2, 32),
+        "latitude":  strconv.FormatFloat(pl.Lat, 'f', 2, 32),
+        "longitude": strconv.FormatFloat(pl.Lng, 'f', 2, 32),
     }
 
     data := c.getRequest("products", productParams)
@@ -166,6 +167,28 @@ Coordinates struct{
 
 var id int;
 var tripId int;
+
+type TripResponse struct {
+    ID                     string   `json:"id"`
+    Status                 string   `json:"status"`
+    StartingFromLocationID string   `json:"starting_from_location_id"`
+    BestRouteLocationIds   []string `json:"best_route_location_ids"`
+    TotalUberCosts         int      `json:"total_uber_costs"`
+    TotalUberDuration      int      `json:"total_uber_duration"`
+    TotalDistance          float64  `json:"total_distance"`
+}
+
+type OnGoingTrip struct {
+    ID                        string   `json:"id"`
+    Status                    string   `json:"status"`
+    StartingFromLocationID    string   `json:"starting_from_location_id"`
+    NextDestinationLocationID string   `json:"next_destination_location_id"`
+    BestRouteLocationIds      []string `json:"best_route_location_ids"`
+    TotalUberCosts            int      `json:"total_uber_costs"`
+    TotalUberDuration         int      `json:"total_uber_duration"`
+    TotalDistance             float64  `json:"total_distance"`
+    UberWaitTimeEta           int      `json:"uber_wait_time_eta"`
+}
 
 
 type Responz struct {
@@ -200,35 +223,16 @@ type Responz struct {
     Status string `json:"status"`
 }
 
-type TripResponse struct {
-    BestRouteLocationIds   []string `json:"best_route_location_ids"`
-    ID                     string   `json:"id"`
-    StartingFromLocationID string   `json:"starting_from_location_id"`
-    Status                 string   `json:"status"`
-    TotalDistance          float64  `json:"total_distance"`
-    TotalUberCosts         int      `json:"total_uber_costs"`
-    TotalUberDuration      int      `json:"total_uber_duration"`
-}
+
 
 type RideRequest struct {
-    EndLatitude    string `json:"end_latitude"`
-    EndLongitude   string `json:"end_longitude"`
-    ProductID      string `json:"product_id"`
-    StartLatitude  string `json:"start_latitude"`
-    StartLongitude string `json:"start_longitude"`
+    EndLat    string `json:"end_latitude"`
+    EndLong   string `json:"end_longitude"`
+    Prod_id      string `json:"product_id"`
+    StartLat  string `json:"start_latitude"`
+    StartLong string `json:"start_longitude"`
 }
 
-type OnGoingTrip struct {
-    BestRouteLocationIds      []string `json:"best_route_location_ids"`
-    ID                        string   `json:"id"`
-    NextDestinationLocationID string   `json:"next_destination_location_id"`
-    StartingFromLocationID    string   `json:"starting_from_location_id"`
-    Status                    string   `json:"status"`
-    TotalDistance             float64  `json:"total_distance"`
-    TotalUberCosts            int      `json:"total_uber_costs"`
-    TotalUberDuration         int      `json:"total_uber_duration"`
-    UberWaitTimeEta           int      `json:"uber_wait_time_eta"`
-}
 
 type ReqResponse struct {
     Driver          interface{} `json:"driver"`
@@ -246,6 +250,31 @@ type ReqResponse struct {
 type resObj struct{
 Greeting string
 }
+
+func main() {
+    mux := httprouter.New()
+    
+
+    id=0;
+    tripId=0;
+    currentPos=0;
+    ogtID=0;
+    mux.POST("/locations",createlocation)
+    mux.POST("/trips",plantrip)
+    mux.GET("/locations/:locid",getloc)
+    mux.GET("/trips/:tripid",gettrip)
+    mux.PUT("/locations/:locid",updateloc)
+    mux.PUT("/trips/:tripid/request",requesttrip)
+    mux.DELETE("/locations/:locid",deleteloc)
+    server := http.Server{
+            Addr:        "0.0.0.0:8083",
+            Handler: mux,
+    }
+
+    server.ListenAndServe()
+}
+
+
 
 func createlocation(rw http.ResponseWriter, req *http.Request, p httprouter.Params) {
     id=id+1;
@@ -299,44 +328,14 @@ err = c.Insert(t);
 
     js,err := json.Marshal(t)
     if err != nil{
-       fmt.Println("Error")
-       return
-    }
+	   fmt.Println("Error")
+	   return
+	}
     rw.Header().Set("Content-Type","application/json")
     rw.Write(js)
 }
 
-func getloc(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
-fmt.Println(p.ByName("locid"));
-id ,err1:= strconv.Atoi(p.ByName("locid"))
-if err1 != nil {
-        panic(err1)
-    }
- conn, err := mgo.Dial("mongodb://rugved:rugved@ds045454.mongolab.com:45454/rugved")
 
-    
-    if err != nil {
-        panic(err)
-    }
-    defer conn.Close();
-
-conn.SetMode(mgo.Monotonic,true);
-c:=conn.DB("rugved").C("assignment2");
-result:=reqObj{}
-err = c.Find(bson.M{"id":id}).One(&result)
-if err != nil {
-                fmt.Println(err)
-        }
-
-        
-        js,err := json.Marshal(result)
-    if err != nil{
-       fmt.Println("Error")
-       return
-    }
-    rw.Header().Set("Content-Type","application/json")
-    rw.Write(js)
-}
 
 type modReqObj struct{
     Address string `json:"address"`
@@ -381,6 +380,7 @@ conn.SetMode(mgo.Monotonic,true);
 
 }
 
+
 func deleteloc(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
      id ,err1:= strconv.Atoi(p.ByName("locid"))
  
@@ -400,6 +400,9 @@ c:=conn.DB("rugved").C("assignment2");
      if err != nil { fmt.Printf("Could not find kitten %s to delete", id)}
     rw.WriteHeader(http.StatusNoContent)
 }
+
+
+
 
 type userUber struct {
     LocationIds            []string `json:"location_ids"`
@@ -475,18 +478,18 @@ func plantrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
         if err != nil {
              fmt.Println(err)
         }
-        pe := &PriceEstimates{}
-        pe.StartLatitude = result.Coordinates.Lat;
-        pe.StartLongitude = result.Coordinates.Lng;
-        pe.EndLatitude = resultLID.Coordinates.Lat;
-        pe.EndLongitude = resultLID.Coordinates.Lng;
+        pe := &PriceEsts{}
+        pe.StartLat = result.Coordinates.Lat;
+        pe.StartLong = result.Coordinates.Lng;
+        pe.EndLat = resultLID.Coordinates.Lat;
+        pe.EndLong = resultLID.Coordinates.Lng;
 
         if e := client.Get(pe); e != nil {
             fmt.Println(e);
         }
         totalDistance=totalDistance+pe.Prices[0].Distance;
         totalDuration=totalDuration+pe.Prices[0].Duration;
-        totalPrice=totalPrice+pe.Prices[0].LowEstimate;
+        totalPrice=totalPrice+pe.Prices[0].LowEstim;
         bestroute[index]=pe.Prices[0].Distance;
         m[pe.Prices[0].Distance]=ids;
         index=index+1;
@@ -529,40 +532,6 @@ func plantrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
     rw.Write(js)
 
     }
-
-
-func gettrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
-
-    conn, err := mgo.Dial("mongodb://rugved:rugved@ds045454.mongolab.com:45454/rugved")
-
-    
-    if err != nil {
-        panic(err)
-    }
-    defer conn.Close();
-
-    conn.SetMode(mgo.Monotonic,true);
-    c:=conn.DB("rugved").C("trips");
-    result:=TripResponse{}
-    err = c.Find(bson.M{"id":p.ByName("tripid")}).One(&result)
-    if err != nil {
-        fmt.Println(err)
-    }
-
-    
-    js,err := json.Marshal(result)
-    if err != nil{
-       fmt.Println("Error")
-       return
-    }
-    rw.Header().Set("Content-Type","application/json")
-    rw.Write(js)
-}
-
-
-var currentPos int;
-var ogtID int;
-
 
 
 func requesttrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
@@ -653,8 +622,8 @@ func requesttrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params)
     client :=Create(&options);
 
     pl:=Products{};
-    pl.Latitude=result1.Coordinates.Lat;
-    pl.Longitude=result1.Coordinates.Lng;
+    pl.Lat=result1.Coordinates.Lat;
+    pl.Lng=result1.Coordinates.Lng;
     if e := pl.get(client); e != nil {
          fmt.Println(e)
     }
@@ -662,7 +631,7 @@ func requesttrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params)
     i:=0
     for _, product := range pl.Products {
          if(i == 0){
-             prodid = product.ProductId
+             prodid = product.Prod_id
         }
     }
 
@@ -670,11 +639,11 @@ func requesttrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params)
 
     var rr RideRequest;
 
-    rr.StartLatitude=strconv.FormatFloat(result1.Coordinates.Lat, 'f', 6, 64);
-    rr.StartLongitude=strconv.FormatFloat(result1.Coordinates.Lng, 'f', 6, 64);
-    rr.EndLatitude=strconv.FormatFloat(result2.Coordinates.Lat, 'f', 6, 64);
-    rr.EndLongitude=strconv.FormatFloat(result2.Coordinates.Lng, 'f', 6, 64);
-    rr.ProductID=prodid;
+    rr.StartLat=strconv.FormatFloat(result1.Coordinates.Lat, 'f', 6, 64);
+    rr.StartLong=strconv.FormatFloat(result1.Coordinates.Lng, 'f', 6, 64);
+    rr.EndLat=strconv.FormatFloat(result2.Coordinates.Lat, 'f', 6, 64);
+    rr.EndLong=strconv.FormatFloat(result2.Coordinates.Lng, 'f', 6, 64);
+    rr.Prod_id=prodid;
     buf, _ := json.Marshal(rr)
     body := bytes.NewBuffer(buf)
     url := fmt.Sprintf(APIUrl, "requests?","access_token=")
@@ -700,25 +669,72 @@ func requesttrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params)
 }
 
 
-func main() {
-    mux := httprouter.New()
-    
 
-    id=0;
-    tripId=0;
-    currentPos=0;
-    ogtID=0;
-    mux.POST("/locations",createlocation)
-    mux.POST("/trips",plantrip)
-    mux.GET("/locations/:locid",getloc)
-    mux.GET("/trips/:tripid",gettrip)
-    mux.PUT("/locations/:locid",updateloc)
-    mux.PUT("/trips/:tripid/request",requesttrip)
-    mux.DELETE("/locations/:locid",deleteloc)
-    server := http.Server{
-            Addr:        "0.0.0.0:8083",
-            Handler: mux,
+func gettrip(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
+
+    conn, err := mgo.Dial("mongodb://rugved:rugved@ds045454.mongolab.com:45454/rugved")
+
+    
+    if err != nil {
+        panic(err)
+    }
+    defer conn.Close();
+
+    conn.SetMode(mgo.Monotonic,true);
+    c:=conn.DB("rugved").C("trips");
+    result:=TripResponse{}
+    err = c.Find(bson.M{"id":p.ByName("tripid")}).One(&result)
+    if err != nil {
+        fmt.Println(err)
     }
 
-    server.ListenAndServe()
+    
+    js,err := json.Marshal(result)
+    if err != nil{
+       fmt.Println("Error")
+       return
+    }
+    rw.Header().Set("Content-Type","application/json")
+    rw.Write(js)
+}
+
+
+var currentPos int;
+var ogtID int;
+
+
+
+
+
+
+func getloc(rw http.ResponseWriter, req *http.Request, p httprouter.Params){
+fmt.Println(p.ByName("locid"));
+id ,err1:= strconv.Atoi(p.ByName("locid"))
+if err1 != nil {
+        panic(err1)
+    }
+ conn, err := mgo.Dial("mongodb://rugved:rugved@ds045454.mongolab.com:45454/rugved")
+
+    
+    if err != nil {
+        panic(err)
+    }
+    defer conn.Close();
+
+conn.SetMode(mgo.Monotonic,true);
+c:=conn.DB("rugved").C("assignment2");
+result:=reqObj{}
+err = c.Find(bson.M{"id":id}).One(&result)
+if err != nil {
+                fmt.Println(err)
+        }
+
+        
+        js,err := json.Marshal(result)
+    if err != nil{
+       fmt.Println("Error")
+       return
+    }
+    rw.Header().Set("Content-Type","application/json")
+    rw.Write(js)
 }
